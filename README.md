@@ -54,12 +54,12 @@ Accuracy saturates above 100 ms window size. CNN and SVM reach similar accuracy,
 ## Files
 
 ```
-Final/
-├── CNN_Final.ipynb                        # CNN training and evaluation
-├── CNN_WITH_DATA_AUGMENTATION.ipynb       # CNN with augmentation experiments
-├── Final_CLASSIC_CLASSIFIERS_4TDFs.ipynb  # SVM, LDA, DT with 4 TDFs
-├── window_column.m                        # MATLAB windowing script
-└── FINAL DATA AND GRAPHS.xlsx             # Results summary
+notebooks/
+├── cnn_training.ipynb          # CNN training and evaluation
+├── cnn_augmentation.ipynb      # CNN with augmentation experiments
+├── classical_classifiers.ipynb # SVM, LDA, DT with 4 TDFs
+├── window_column.m             # MATLAB windowing script
+└── results.xlsx                # Results summary
 ```
 
 ## Stack
