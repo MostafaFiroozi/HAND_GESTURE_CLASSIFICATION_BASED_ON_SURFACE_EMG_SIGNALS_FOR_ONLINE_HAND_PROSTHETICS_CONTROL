@@ -1,4 +1,67 @@
-# HAND_GESTURE_CLASSIFICATION_BASED_ON_SURFACE_EMG_SIGNALS_FOR_ONLINE_HAND_PROSTHETICS_CONTROL
-We implemented 5 classical classifiers and a CNN to classify 8 different hand gestures.  The classical classifiers we chose are the one in the picture and for each of them we extracted 4 time domain features, that showed to be effective in literature. This is the architecture of the CNN we used: in input we have one window of the raw EMG signal, with all the 10 channels. Then there are three main blocks, each composed by one convolutional layer and one maxpooling layer. At the output we have the predicted class of the gesture.To make the results more consistent, we analyzed 3 different day sessions of the same subject: for each of them we explored 7 different window sizes (ranging from 25 to 300ms) and 4 different stride lengths (from 25 to 100% of the window size). The performances of the classifiers are assessed in terms of the trade off between accuracy (that should be as high as possible) and computational time (which must be lower than the real time constraint of 300ms). This graph shows the results of our CNN: exploiting window sizes higher than 100ms, does not significantly affect the accuracy, whereas smaller window sizes lead to a decrease of accuracy. Moreover, for each window size, the use of lower stride lengths enhanced the accuracy (indeed it is a data augmentation tool). In addition, the computational time grows with the increase of the window size and of the stride length.SVM results, which is the best classifier among the 5 we used. The trend of accuracy and computational time is very similar to the CNN one, even though, in this case the stride length doesn’t affect the computational time. In conclusion, we present the trend of mean accuracy for the classical classifiers compared to CNN. In general, we can notice a saturation behavior, which for CNN starts from around 100ms. The computational time of all classifiers shows a linear increasing trend, despite the CNN being characterized by a lower order of magnitude.  Knowing that for an online application, the computational time must also include the window size, in our opinion the best trade off for the CNN between accuracy and computational time is reached at 100ms. 
-[More Info](https://www.linkedin.com/feed/update/urn:li:activity:6746887694653128704/).
+# Hand Gesture Classification from Surface EMG Signals
 
+Real-time classification of 8 hand gestures using surface EMG signals, designed for online hand prosthetics control. Compares a CNN against 5 classical classifiers across multiple window sizes and stride configurations.
+
+## Results
+
+| Model | Test Accuracy | Inference Time |
+|-------|-------------|----------------|
+| CNN | **98.29%** | 0.072 ms/window |
+| SVM | 97.68% | — |
+| LDA | ~95% | — |
+| Decision Tree | ~89% | — |
+
+> Real-time constraint: total latency (window + inference) must be < 300 ms. CNN at 100 ms window achieves **100.07 ms total** — well within budget.
+
+## Gestures
+
+8 classes: Flexion, Extension, Supination, Pronation, Open Hand, Pinch, Lateral Pinch, Fist
+
+## Dataset
+
+- **Signal:** 10-channel surface EMG at 2048 Hz
+- **Subject:** 1 subject, 3 day sessions, 3 rounds each
+- **Windowing:** 7 window sizes (25–300 ms) × 4 stride lengths (25–100% of window)
+- **Best config:** 100 ms window, 25% stride → 13,023 train / 8,346 test windows
+
+## CNN Architecture
+
+```
+Input (204 × 10 × 1)
+  → Conv2D(32, 3×3, stride 2×1) + MaxPool(3×1) + Dropout(0.5)
+  → Conv2D(64, 3×1, stride 2×1) + MaxPool(2×1) + Dropout(0.5)
+  → Conv2D(32, 2×1, stride 1×1) + MaxPool(2×1)
+  → Flatten → Dense(64) → Dense(8, softmax)
+Total params: 93,160
+```
+
+Optimizer: Adam (lr=0.001), 30 epochs, categorical cross-entropy loss.
+
+## Classical Classifiers
+
+Features extracted per window per channel (4 time-domain features):
+- **MAV** — Mean Absolute Value
+- **WL** — Waveform Length
+- **ZC** — Zero Crossings
+- **SSC** — Slope Sign Changes
+
+Classifiers evaluated: SVM, LDA, Decision Tree, and 2 others.
+
+## Key Finding
+
+Accuracy saturates above 100 ms window size. CNN and SVM reach similar accuracy, but CNN inference time scales with window size while SVM computational time is stride-independent. At 100 ms / 25% stride, CNN achieves the best accuracy–latency trade-off for a real-time prosthetics application.
+
+## Files
+
+```
+Final/
+├── CNN_Final.ipynb                        # CNN training and evaluation
+├── CNN_WITH_DATA_AUGMENTATION.ipynb       # CNN with augmentation experiments
+├── Final_CLASSIC_CLASSIFIERS_4TDFs.ipynb  # SVM, LDA, DT with 4 TDFs
+├── window_column.m                        # MATLAB windowing script
+└── FINAL DATA AND GRAPHS.xlsx             # Results summary
+```
+
+## Stack
+
+Python · TensorFlow/Keras · scikit-learn · NumPy · pandas · seaborn · MATLAB
